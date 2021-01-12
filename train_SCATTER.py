@@ -208,9 +208,9 @@ def train(opt):
         # cost = cost_ctc
         # cost = cost_atten
         if (iteration + 1) % 100 == 0:
-            print('\riter: {:4d}\tloss: {:6.3f}'.format(iteration + 1, cost.item()), end='\n')
+            print('\riter: {:4d}\tloss: {:6.3f}\tavg: {:6.3f}'.format(iteration + 1, cost.item(), loss_avg.val()), end='\n')
         else:
-            print('\riter: {:4d}\tloss: {:6.3f}'.format(iteration + 1, cost.item()), end='')
+            print('\riter: {:4d}\tloss: {:6.3f}\tavg: {:6.3f}'.format(iteration + 1, cost.item(), loss_avg.val()), end='')
         sys.stdout.flush()
         if cost < 0.001:
             print(f'iter: {iteration + 1}\tloss: {cost}')
@@ -241,7 +241,7 @@ def train(opt):
         #     opt.grad_clip = 1
 
         # validation part
-        if (iteration + 1) % opt.valInterval == 0:  # To see training progress, we also conduct validation when 'iteration == 0'
+        if iteration == 0 or (iteration + 1) % opt.valInterval == 0:  # To see training progress, we also conduct validation when 'iteration == 0'
             elapsed_time = time.time() - start_time
             # for log
             with open(f'./saved_models/{opt.exp_name}/log_train.txt', 'a') as log:
