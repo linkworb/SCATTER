@@ -13,7 +13,7 @@ from nltk.metrics.distance import edit_distance
 
 from utils import CTCLabelConverter, AttnLabelConverter, Averager
 from dataset import hierarchical_dataset, AlignCollate
-from model import Model
+from model import Model_s as Model
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
 
@@ -172,6 +172,12 @@ def test(opt):
     else:
         converter = AttnLabelConverter(opt.character)
     opt.num_class = len(converter.character)
+    # CTCLoss
+    converter_ctc = CTCLabelConverter(opt.character)
+    # Attention
+    converter_atten = AttnLabelConverter(opt.character)
+    opt.num_class_ctc = len(converter_ctc.character)
+    opt.num_class_atten = len(converter_atten.character)
 
     if opt.rgb:
         opt.input_channel = 3
@@ -179,7 +185,10 @@ def test(opt):
     print('model input parameters', opt.imgH, opt.imgW, opt.num_fiducial, opt.input_channel, opt.output_channel,
           opt.hidden_size, opt.num_class, opt.batch_max_length, opt.Transformation, opt.FeatureExtraction,
           opt.SequenceModeling, opt.Prediction)
-    model = torch.nn.DataParallel(model).to(device)
+    
+    model = model.to(device)
+    if torch.cuda.device_count() > 1:
+        model = torch.nn.DataParallel(model).to(device)
 
     # load model
     print('loading pretrained model from %s' % opt.saved_model)
@@ -246,6 +255,9 @@ if __name__ == '__main__':
     parser.add_argument('--output_channel', type=int, default=512,
                         help='the number of output channel of Feature extractor')
     parser.add_argument('--hidden_size', type=int, default=256, help='the size of the LSTM hidden state')
+    # SCATTER
+    parser.add_argument('--LSTM_Layer', type=int, default=2, help='the layers of the LSTM')
+    parser.add_argument('--Selective_Layer', type=int, default=1, help='the layers of the Selective decoder')
 
     opt = parser.parse_args()
 
