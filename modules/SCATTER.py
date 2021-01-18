@@ -99,18 +99,18 @@ class Text_Attention_Module(nn.Module):
 class Selective_Contextual_Refinement(nn.Module):
     def __init__(self, opt, lstm_layer=2):
         super().__init__()
-        self.block = nn.Sequential(
-            BidirectionalLSTM(512, opt.hidden_size, opt.hidden_size),
-            BidirectionalLSTM(opt.hidden_size, opt.hidden_size, 512),
-        )
-        # self.block = nn.Sequential()
-        # for i in range(lstm_layer):
-        #     if i == 0:
-        #         self.block.add_module(str(i), BidirectionalLSTM(512, opt.hidden_size, opt.hidden_size))
-        #     elif i == lstm_layer - 1:
-        #         self.block.add_module(str(i), BidirectionalLSTM(opt.hidden_size, opt.hidden_size, 512))
-        #     else:
-        #         self.block.add_module(str(i), BidirectionalLSTM(opt.hidden_size, opt.hidden_size, opt.hidden_size))
+        # self.block = nn.Sequential(
+        #     BidirectionalLSTM(512, opt.hidden_size, opt.hidden_size),
+        #     BidirectionalLSTM(opt.hidden_size, opt.hidden_size, 512),
+        # )
+        self.block = nn.Sequential()
+        for i in range(lstm_layer):
+            if i == 0:
+                self.block.add_module(str(i), BidirectionalLSTM(512, opt.hidden_size, opt.hidden_size))
+            elif i == lstm_layer - 1:
+                self.block.add_module(str(i), BidirectionalLSTM(opt.hidden_size, opt.hidden_size, 512))
+            else:
+                self.block.add_module(str(i), BidirectionalLSTM(opt.hidden_size, opt.hidden_size, opt.hidden_size))
 
         # LSTM_layer = []
         # for i in range(lstm_layer):
