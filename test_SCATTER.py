@@ -3,6 +3,7 @@ import time
 import string
 import argparse
 import re
+from collections import OrderedDict
 
 import torch
 import torch.backends.cudnn as cudnn
@@ -187,12 +188,21 @@ def test(opt):
           opt.SequenceModeling, opt.Prediction)
     
     model = model.to(device)
-    if torch.cuda.device_count() > 1:
-        model = torch.nn.DataParallel(model).to(device)
+    # if torch.cuda.device_count() > 1:
+    #     model = torch.nn.DataParallel(model).to(device)
 
     # load model
     print('loading pretrained model from %s' % opt.saved_model)
-    model.load_state_dict(torch.load(opt.saved_model, map_location=device))
+    # model.load_state_dict(torch.load(opt.saved_model, map_location=device))
+    model_ = torch.load(opt.saved_model, map_location=device)
+    if torch.cuda.device_count() > 1:
+        model = torch.nn.DataParallel(model).to(device)
+        model.load_state_dict(model_)
+    else:
+        model2_ = OrderedDict()
+        for k in model_.keys():
+            model2_[k.replace('module.', '')] = model_[k]
+        model.load_state_dict(model2_)
     opt.exp_name = '_'.join(opt.saved_model.split('/')[1:])
     # print(model)
 
