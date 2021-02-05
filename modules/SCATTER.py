@@ -130,7 +130,7 @@ class Selective_Contextual_Refinement(nn.Module):
         #     feat_h = b(feat_h)
         feat_h = self.block(feat_h)  # [1, 26, 512]
         feat_d = torch.cat([feat_v, feat_h], dim=2)
-        # feat_d = self.sd(feat_d)
+        feat_d = self.sd(feat_d)
         return feat_h, feat_d  # [1, 26, 512], [1, 26, 512*2]
 
 
